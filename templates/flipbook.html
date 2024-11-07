@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flipbook</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        .flipbook-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow-x: scroll;
+            white-space: nowrap;
+            font-size: 0;
+        }
+
+        .flipbook-page {
+            display: inline-block;
+            width: 100vw;
+            height: 80%;
+            max-height: 100vh;
+            object-fit: contain;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flipbook-container" id="flipbook-container">
+        <img class="flipbook-page" src="{{ flipbook_pages[0] }}">
+    </div>
+    <script>
+        var flipbookPages = {{ flipbook_pages | tojson }};
+        var container = document.getElementById('flipbook-container');
+        var currentPageIndex = 0;
+        var touchStartX = null;
+        var mouseStartX = null;
+        var pageFlipped = false;
+
+        function handleStart(event) {
+            if (event.type === 'touchstart' && event.touches.length === 1) {
+                touchStartX = event.touches[0].clientX;
+            } else if (event.type === 'mousedown') {
+                mouseStartX = event.clientX;
+            }
+        }
+
+        function handleMove(event) {
+            event.preventDefault();
+            if (event.type === 'touchmove' && event.touches.length === 1 && touchStartX !== null) {
+                var touchMoveX = event.touches[0].clientX;
+                handleSwipe(touchMoveX - touchStartX);
+            } else if (event.type === 'mousemove' && mouseStartX !== null) {
+                var mouseMoveX = event.clientX;
+                handleSwipe(mouseMoveX - mouseStartX);
+            }
+        }
+
+        function handleEnd(event) {
+            if (event.type === 'touchend') {
+                touchStartX = null;
+            } else if (event.type === 'mouseup') {
+                mouseStartX = null;
+            }
+            pageFlipped = false;
+        }
+
+        function handleSwipe(deltaX) {
+            if (!pageFlipped) {
+                if (deltaX > 50) {
+                    currentPageIndex = Math.max(0, currentPageIndex - 1);
+                    pageFlipped = true;
+                } else if (deltaX < -50) {
+                    currentPageIndex = Math.min(flipbookPages.length - 1, currentPageIndex + 1);
+                    pageFlipped = true;
+                }
+
+                var nextPage = container.querySelector('.flipbook-page');
+                nextPage.classList.add('hidden');
+                setTimeout(function () {
+                    nextPage.src = flipbookPages[currentPageIndex];
+                    nextPage.classList.remove('hidden');
+                }, 500);
+            }
+        }
+
+        function handleKeyboard(event) {
+            event.preventDefault();
+            if (event.key === 'ArrowLeft') {
+                currentPageIndex = Math.max(0, currentPageIndex - 1);
+                var nextPage = container.querySelector('.flipbook-page');
+                nextPage.classList.add('hidden');
+                setTimeout(function () {
+                    nextPage.src = flipbookPages[currentPageIndex];
+                    nextPage.classList.remove('hidden');
+                }, 500);
+            } else if (event.key === 'ArrowRight') {
+                currentPageIndex = Math.min(flipbookPages.length - 1, currentPageIndex + 1);
+                var nextPage = container.querySelector('.flipbook-page');
+                nextPage.classList.add('hidden');
+                setTimeout(function () {
+                    nextPage.src = flipbookPages[currentPageIndex];
+                    nextPage.classList.remove('hidden');
+                }, 500);
+            }
+        }
+
+        window.addEventListener('touchstart', handleStart);
+        window.addEventListener('touchmove', handleMove);
+        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('keydown', handleKeyboard);
+    </script>

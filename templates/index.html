@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF to Ebook Converter</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10vh;
+        }
+        .formContainer {
+            padding: 20vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            /* border: 1px solid black; */
+            /* width: fit-content; */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .custom-file-upload {
+            background-color: #ffa000;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #pdfSubmit {
+            background-color: #ffa000;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        #pdfInput {
+            display: none;
+        }
+        .file-name {
+            margin-top: 5px;
+            font-style: italic;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1 align="center">PDF to Ebook Converter</h1>
+    <div class="container">
+        <form method="post" enctype="multipart/form-data" class="formContainer">
+            <label for="pdfInput" class="custom-file-upload">Upload PDF</label>
+            <input type="file" name="pdf_file" accept=".pdf" id="pdfInput" required onchange="updateFileName(this)">
+            <span class="file-name" id="fileName"></span>
+            <input type="submit" value="Convert" id="pdfSubmit">
+        </form>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            var fileName = document.getElementById('fileName');
+            fileName.textContent = input.files[0].name;
+        }
+    </script>
+</body>
+</html>
